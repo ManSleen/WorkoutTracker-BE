@@ -20,5 +20,18 @@
   "bugs": {
     "url": "https://github.com/ManSleen/BlogIt-BE/issues"
   },
-  "homepage": "https://github.com/ManSleen/BlogIt-BE#readme"
+  "homepage": "https://github.com/ManSleen/BlogIt-BE#readme",
+  "devDependencies": {
+    "cross-env": "^7.0.0",
+    "jest": "^25.1.0",
+    "nodemon": "^2.0.2",
+    "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "helmet": "^3.21.2",
+    "jsonwebtoken": "^8.5.1"
+  }
 }
