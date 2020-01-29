@@ -1,0 +1,24 @@
+{
+  "name": "BlogIt-BE",
+  "version": "1.0.0",
+  "description": "CRUD app, users can sign up and add new blog posts",
+  "main": "index.js",
+  "scripts": {
+    "server": "nodemon index.js",
+    "test": "cross-env DB_ENV=testing jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ManSleen/BlogIt-BE.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ManSleen/BlogIt-BE/issues"
+  },
+  "homepage": "https://github.com/ManSleen/BlogIt-BE#readme"
+}
