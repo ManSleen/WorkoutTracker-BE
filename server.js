@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 require("dotenv/config");
 
 // Import routers
-const postsRoute = require("./routes/posts");
+const usersRoute = require("./routes/users/users");
 
 // Create server using express
 const server = express();
@@ -16,7 +16,7 @@ server.use(express.json());
 server.use(cors());
 
 // Setup paths for routers
-server.use("/api/posts", postsRoute);
+server.use("/api/users", usersRoute);
 
 // Connect to DB
 mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true }, () =>
