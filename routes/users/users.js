@@ -75,12 +75,28 @@ router.get("/:userId/workouts", async (req, res) => {
 // Add a workout for a specific user
 router.post("/:userId/workouts", async (req, res) => {
   try {
-    const updatedUser = await User.update(
+    await User.updateOne(
       { _id: req.params.userId },
       { $push: { workouts: req.body } }
     );
-    // await user.save();
-    res.json(updatedUser);
+    const user = await User.findById(req.params.userId);
+    const usersWorkouts = user.workouts;
+    res.json(usersWorkouts);
+  } catch (error) {
+    res.json({ message: error });
+  }
+});
+
+// Delete a workout by ID
+router.delete("/:userId/workouts/:workoutId", async (req, res) => {
+  try {
+    await User.updateOne(
+      { _id: req.params.userId },
+      { $pull: { workouts: { _id: req.params.workoutId } } }
+    );
+    const user = await User.findById(req.params.userId);
+    const usersWorkouts = user.workouts;
+    res.json(usersWorkouts);
   } catch (error) {
     res.json({ message: error });
   }
