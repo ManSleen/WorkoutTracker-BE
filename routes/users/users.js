@@ -59,12 +59,28 @@ router.put("/:userId", async (req, res) => {
   }
 });
 
+// *** WORKOUTS ***
+
 // Get workouts for a specific user
 router.get("/:userId/workouts", async (req, res) => {
   try {
     const user = await User.findById(req.params.userId);
     const usersWorkouts = user.workouts;
     res.json(usersWorkouts);
+  } catch (error) {
+    res.json({ message: error });
+  }
+});
+
+// Add a workout for a specific user
+router.post("/:userId/workouts", async (req, res) => {
+  try {
+    const updatedUser = await User.update(
+      { _id: req.params.userId },
+      { $push: { workouts: req.body } }
+    );
+    // await user.save();
+    res.json(updatedUser);
   } catch (error) {
     res.json({ message: error });
   }
