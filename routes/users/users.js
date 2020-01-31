@@ -1,4 +1,6 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 
 const User = require("../../models/User");
@@ -15,13 +17,13 @@ router.get("/", async (req, res) => {
 
 // Add a new user
 router.post("/", async (req, res) => {
-  const user = new User({
-    username: req.body.username,
-    password: req.body.password,
-    bio: req.body.bio
-  });
+  const user = req.body;
+  const hash = bcrypt.hashSync(user.password);
+  user.password = hash;
+
+  const userWithHashedPassword = new User(user);
   try {
-    const newUser = await user.save();
+    const newUser = await userWithHashedPassword.save();
     res.json(newUser);
   } catch (error) {
     res.json({ message: error });
