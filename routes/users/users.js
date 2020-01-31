@@ -122,14 +122,18 @@ router.delete("/:userId/workouts/:workoutId", async (req, res) => {
 
 // Update a workout by ID
 router.put("/:userId/workouts/:workoutId", async (req, res) => {
+  const updates = req.body;
   try {
-    await User.updateOne(
+    const workout = await User.updateOne(
       { _id: req.params.userId, "workouts._id": req.params.workoutId },
-      { "workouts.$": req.body }
+      {
+        "workouts.$.name": updates.name,
+        "workouts.$.duration": updates.duration
+      }
     );
-    const user = await User.findById(req.params.userId);
-    const usersWorkouts = user.workouts;
-    res.json(usersWorkouts);
+    // const user = await User.findById(req.params.userId);
+    // const usersWorkouts = user.workouts;
+    res.json(workout);
   } catch (error) {
     res.json({ message: error });
   }
@@ -169,5 +173,16 @@ router.post("/:userId/workouts/:workoutId/exercises", async (req, res) => {
     res.json({ message: error });
   }
 });
+
+// // Update a specific exercise
+// router.put("/:userId/workouts/:workoutId/exercises/:exerciseId", async (req, res) => {
+//   const changes = req.body;
+//   try {
+//     const updatedExercise = await User.updateOne({ _id: req.params.userId}, {$set: {'workouts.$[i].exercises'}})
+//   } catch (error) {
+//     res.json({ message: error });
+
+//   }
+// })
 
 module.exports = router;
