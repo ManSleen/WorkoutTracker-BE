@@ -174,15 +174,47 @@ router.post("/:userId/workouts/:workoutId/exercises", async (req, res) => {
   }
 });
 
-// // Update a specific exercise
-// router.put("/:userId/workouts/:workoutId/exercises/:exerciseId", async (req, res) => {
-//   const changes = req.body;
+// // Delete an exercise by ID
+// router.delete("/:userId/workouts/:workoutId/exercise/:exerciseId", async (req, res) => {
 //   try {
-//     const updatedExercise = await User.updateOne({ _id: req.params.userId}, {$set: {'workouts.$[i].exercises'}})
+//     await User.updateOne(
+//       { _id: req.params.userId },
+//       { $pull: { workouts: { _id: req.params.workoutId } } }
+//     );
+//     const user = await User.findById(req.params.userId);
+//     const usersWorkouts = user.workouts;
+//     res.json(usersWorkouts);
 //   } catch (error) {
 //     res.json({ message: error });
-
 //   }
-// })
+// });
+
+// Update a specific exercise
+router.put(
+  "/:userId/workouts/:workoutId/exercises/:exerciseId",
+  async (req, res) => {
+    const changes = req.body;
+    try {
+      const updatedExercise = await User.updateOne(
+        { _id: req.params.userId },
+        {
+          $set: {
+            "workouts.$[].exercises.$[a].name": changes.name
+          }
+        },
+        {
+          arrayFilters: [
+            {
+              "a._id": req.params.exerciseId
+            }
+          ]
+        }
+      );
+      res.json(updatedExercise);
+    } catch (error) {
+      res.json({ message: error });
+    }
+  }
+);
 
 module.exports = router;
