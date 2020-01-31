@@ -242,22 +242,6 @@ router.get(
   }
 );
 
-// // Add an exercise to a specific workout
-// router.post("/:userId/workouts/:workoutId/exercises", async (req, res) => {
-//   const exercise = req.body;
-//   try {
-//     const addedExercise = await User.updateOne(
-//       { _id: req.params.userId, "workouts._id": req.params.workoutId },
-//       {
-//         $push: { "workouts.$.exercises": exercise }
-//       }
-//     );
-//     res.json(addedExercise);
-//   } catch (error) {
-//     res.json({ message: error });
-//   }
-// });
-
 // Add set to specific exercise
 router.post(
   "/:userId/workouts/:workoutId/exercises/:exerciseId/sets",
@@ -285,5 +269,67 @@ router.post(
     }
   }
 );
+
+// Update a specific set
+router.put(
+  "/:userId/workouts/:workoutId/exercises/:exerciseId/sets/:setId",
+  async (req, res) => {
+    const changes = req.body;
+    try {
+      const updatedSet = await User.updateOne(
+        { _id: req.params.userId },
+        {
+          $set: {
+            "workouts.$[].exercises.$[a].sets.$[b].reps": changes.reps,
+            "workouts.$[].exercises.$[a].sets.$[b].number": changes.number,
+            "workouts.$[].exercises.$[a].sets.$[b].weight": changes.weight,
+            "workouts.$[].exercises.$[a].sets.$[b].completed": changes.completed
+          }
+        },
+        {
+          arrayFilters: [
+            {
+              "a._id": req.params.exerciseId
+            },
+            {
+              "b._id": req.params.setId
+            }
+          ]
+        }
+      );
+      res.json(updatedSet);
+    } catch (error) {
+      res.json({ message: error });
+    }
+  }
+);
+
+// // Update a specific exercise
+// router.put(
+//   "/:userId/workouts/:workoutId/exercises/:exerciseId",
+//   async (req, res) => {
+//     const changes = req.body;
+//     try {
+//       const updatedExercise = await User.updateOne(
+//         { _id: req.params.userId },
+//         {
+//           $set: {
+//             "workouts.$[].exercises.$[a].name": changes.name
+//           }
+//         },
+//         {
+//           arrayFilters: [
+//             {
+//               "a._id": req.params.exerciseId
+//             }
+//           ]
+//         }
+//       );
+//       res.json(updatedExercise);
+//     } catch (error) {
+//       res.json({ message: error });
+//     }
+//   }
+// );
 
 module.exports = router;
