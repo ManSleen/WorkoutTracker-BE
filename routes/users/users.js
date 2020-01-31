@@ -319,28 +319,63 @@ router.put(
   }
 );
 
-// // Update a specific exercise
-// router.put(
+// Delete a specific set
+router.delete(
+  "/:userId/workouts/:workoutId/exercises/:exerciseId/sets/:setId",
+  async (req, res) => {
+    try {
+      const deletedSet = await User.updateOne(
+        { _id: req.params.userId },
+        {
+          $pull: {
+            "workouts.$[a].exercises.$[b].sets": {
+              _id: req.params.setId
+            }
+          }
+        },
+        {
+          arrayFilters: [
+            {
+              "a._id": req.params.workoutId
+            },
+            {
+              "b._id": req.params.exerciseId
+            }
+          ]
+        }
+      );
+
+      res.json(deletedSet);
+    } catch (error) {
+      res.json({ message: error });
+    }
+  }
+);
+
+// // Delete an exercise by ID
+// router.delete(
 //   "/:userId/workouts/:workoutId/exercises/:exerciseId",
 //   async (req, res) => {
-//     const changes = req.body;
 //     try {
-//       const updatedExercise = await User.updateOne(
+//       const deletedExercise = await User.updateOne(
 //         { _id: req.params.userId },
 //         {
-//           $set: {
-//             "workouts.$[].exercises.$[a].name": changes.name
+//           $pull: {
+//             "workouts.$[a].exercises": {
+//               _id: req.params.exerciseId
+//             }
 //           }
 //         },
 //         {
 //           arrayFilters: [
 //             {
-//               "a._id": req.params.exerciseId
+//               "a._id": req.params.workoutId
 //             }
 //           ]
 //         }
 //       );
-//       res.json(updatedExercise);
+
+//       res.json(deletedExercise);
 //     } catch (error) {
 //       res.json({ message: error });
 //     }
