@@ -72,6 +72,24 @@ router.get("/:userId/workouts", async (req, res) => {
   }
 });
 
+// Get a user's specific workout by ID
+router.get("/:userId/workouts/:workoutId", async (req, res) => {
+  try {
+    const user = await User.find(
+      {
+        _id: req.params.userId
+      },
+      {
+        workouts: { $elemMatch: { _id: req.params.workoutId } }
+      }
+    );
+
+    res.json(user[0].workouts[0]);
+  } catch (error) {
+    res.json({ message: error });
+  }
+});
+
 // Add a workout for a specific user
 router.post("/:userId/workouts", async (req, res) => {
   try {
@@ -97,6 +115,56 @@ router.delete("/:userId/workouts/:workoutId", async (req, res) => {
     const user = await User.findById(req.params.userId);
     const usersWorkouts = user.workouts;
     res.json(usersWorkouts);
+  } catch (error) {
+    res.json({ message: error });
+  }
+});
+
+// Update a workout by ID
+router.put("/:userId/workouts/:workoutId", async (req, res) => {
+  try {
+    await User.updateOne(
+      { _id: req.params.userId, "workouts._id": req.params.workoutId },
+      { "workouts.$": req.body }
+    );
+    const user = await User.findById(req.params.userId);
+    const usersWorkouts = user.workouts;
+    res.json(usersWorkouts);
+  } catch (error) {
+    res.json({ message: error });
+  }
+});
+
+// *** Exercises ***
+
+// Get exercises for a specific workout
+router.get("/:userId/workouts/:workoutId/exercises", async (req, res) => {
+  try {
+    const user = await User.find(
+      {
+        _id: req.params.userId
+      },
+      {
+        workouts: { $elemMatch: { _id: req.params.workoutId } }
+      }
+    );
+    res.json(user[0].workouts[0].exercises);
+  } catch (error) {
+    res.json({ message: error });
+  }
+});
+
+// Add an exercise to a specific workout
+router.post("/:userId/workouts/:workoutId/exercises", async (req, res) => {
+  const exercise = req.body;
+  try {
+    const addedExercise = await User.updateOne(
+      { _id: req.params.userId, "workouts._id": req.params.workoutId },
+      {
+        $push: { "workouts.$.exercises": exercise }
+      }
+    );
+    res.json(addedExercise);
   } catch (error) {
     res.json({ message: error });
   }
