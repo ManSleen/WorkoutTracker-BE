@@ -1,6 +1,4 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const router = express.Router();
 
 const User = require("../../models/User");
@@ -12,21 +10,6 @@ router.get("/", async (req, res) => {
     res.json(users);
   } catch (error) {
     res.send({ message: error });
-  }
-});
-
-// Add a new user
-router.post("/", async (req, res) => {
-  const user = req.body;
-  const hash = bcrypt.hashSync(user.password);
-  user.password = hash;
-
-  const userWithHashedPassword = new User(user);
-  try {
-    const newUser = await userWithHashedPassword.save();
-    res.json(newUser);
-  } catch (error) {
-    res.json({ message: error });
   }
 });
 
@@ -51,10 +34,10 @@ router.delete("/:userId", async (req, res) => {
 });
 
 // Update a user
-router.put("/:userId", async (req, res) => {
+router.patch("/:userId", async (req, res) => {
   const updates = req.body;
   try {
-    await User.updateOne({ _id: req.params.userId }, updates);
+    await User.updateOne({ _id: req.params.userId }, { $set: updates });
     res.json({ message: `Updated user with ID ${req.params.userId}` });
   } catch (error) {
     res.json({ message: error });
@@ -108,11 +91,12 @@ router.post("/:userId/workouts", async (req, res) => {
 });
 
 // Delete a workout by ID
-router.delete("/:userId/workouts/:workoutId", async (req, res) => {
+router.delete("/:userId/workouts", async (req, res) => {
+  const workoutId = req.body.workoutId;
   try {
     await User.updateOne(
       { _id: req.params.userId },
-      { $pull: { workouts: { _id: req.params.workoutId } } }
+      { $pull: { workouts: { _id: workoutId } } }
     );
     const user = await User.findById(req.params.userId);
     const usersWorkouts = user.workouts;
@@ -122,19 +106,18 @@ router.delete("/:userId/workouts/:workoutId", async (req, res) => {
   }
 });
 
-// Update a workout by ID
-router.put("/:userId/workouts/:workoutId", async (req, res) => {
+// Update a workout by ID -
+router.put("/:userId/workouts", async (req, res) => {
   const updates = req.body;
+  const workoutId = updates.workoutId;
   try {
     const workout = await User.updateOne(
-      { _id: req.params.userId, "workouts._id": req.params.workoutId },
+      { _id: req.params.userId, "workouts._id": workoutId },
       {
         "workouts.$.name": updates.name,
         "workouts.$.duration": updates.duration
       }
     );
-    // const user = await User.findById(req.params.userId);
-    // const usersWorkouts = user.workouts;
     res.json(workout);
   } catch (error) {
     res.json({ message: error });
@@ -353,35 +336,5 @@ router.delete(
     }
   }
 );
-
-// // Delete an exercise by ID
-// router.delete(
-//   "/:userId/workouts/:workoutId/exercises/:exerciseId",
-//   async (req, res) => {
-//     try {
-//       const deletedExercise = await User.updateOne(
-//         { _id: req.params.userId },
-//         {
-//           $pull: {
-//             "workouts.$[a].exercises": {
-//               _id: req.params.exerciseId
-//             }
-//           }
-//         },
-//         {
-//           arrayFilters: [
-//             {
-//               "a._id": req.params.workoutId
-//             }
-//           ]
-//         }
-//       );
-
-//       res.json(deletedExercise);
-//     } catch (error) {
-//       res.json({ message: error });
-//     }
-//   }
-// );
 
 module.exports = router;
