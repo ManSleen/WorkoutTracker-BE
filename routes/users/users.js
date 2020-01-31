@@ -174,20 +174,35 @@ router.post("/:userId/workouts/:workoutId/exercises", async (req, res) => {
   }
 });
 
-// // Delete an exercise by ID
-// router.delete("/:userId/workouts/:workoutId/exercise/:exerciseId", async (req, res) => {
-//   try {
-//     await User.updateOne(
-//       { _id: req.params.userId },
-//       { $pull: { workouts: { _id: req.params.workoutId } } }
-//     );
-//     const user = await User.findById(req.params.userId);
-//     const usersWorkouts = user.workouts;
-//     res.json(usersWorkouts);
-//   } catch (error) {
-//     res.json({ message: error });
-//   }
-// });
+// Delete an exercise by ID
+router.delete(
+  "/:userId/workouts/:workoutId/exercises/:exerciseId",
+  async (req, res) => {
+    try {
+      const deletedExercise = await User.updateOne(
+        { _id: req.params.userId },
+        {
+          $pull: {
+            "workouts.$[a].exercises": {
+              _id: req.params.exerciseId
+            }
+          }
+        },
+        {
+          arrayFilters: [
+            {
+              "a._id": req.params.workoutId
+            }
+          ]
+        }
+      );
+
+      res.json(deletedExercise);
+    } catch (error) {
+      res.json({ message: error });
+    }
+  }
+);
 
 // Update a specific exercise
 router.put(
