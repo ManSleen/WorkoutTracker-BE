@@ -217,4 +217,73 @@ router.put(
   }
 );
 
+// *** Sets ***
+
+// Get all sets for a specific exercise
+router.get(
+  "/:userId/workouts/:workoutId/exercises/:exerciseId/sets",
+  async (req, res) => {
+    try {
+      const user = await User.find(
+        {
+          _id: req.params.userId
+        },
+        {
+          workouts: {
+            $elemMatch: { _id: req.params.workoutId },
+            exercises: { $elemMatch: { _id: req.params.exerciseId } }
+          }
+        }
+      );
+      res.json(user[0].workouts[0].exercises[0].sets);
+    } catch (error) {
+      res.json({ message: error });
+    }
+  }
+);
+
+// // Add an exercise to a specific workout
+// router.post("/:userId/workouts/:workoutId/exercises", async (req, res) => {
+//   const exercise = req.body;
+//   try {
+//     const addedExercise = await User.updateOne(
+//       { _id: req.params.userId, "workouts._id": req.params.workoutId },
+//       {
+//         $push: { "workouts.$.exercises": exercise }
+//       }
+//     );
+//     res.json(addedExercise);
+//   } catch (error) {
+//     res.json({ message: error });
+//   }
+// });
+
+// Add set to specific exercise
+router.post(
+  "/:userId/workouts/:workoutId/exercises/:exerciseId/sets",
+  async (req, res) => {
+    const set = req.body;
+    try {
+      const something = await User.updateOne(
+        {
+          _id: req.params.userId,
+          "workouts._id": req.params.workoutId,
+          "workouts.exercises._id": req.params.exerciseId
+        },
+        { $push: { "workouts.$.exercises.$[e].sets": set } },
+        {
+          arrayFilters: [
+            {
+              "e._id": req.params.exerciseId
+            }
+          ]
+        }
+      );
+      res.json(something);
+    } catch (error) {
+      res.json({ message: error });
+    }
+  }
+);
+
 module.exports = router;
