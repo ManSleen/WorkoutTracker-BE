@@ -31,7 +31,9 @@ router.post("/login", async (req, res) => {
       console.log("they matched!");
       const token = generateToken(user);
       console.log("token: ", token);
-      res.status(200).json({ message: `Welcome ${user.username}!`, token });
+      res
+        .status(200)
+        .json({ message: `Welcome ${user.username}!`, token, user });
     }
   } catch (error) {
     res.json({ message: error });

@@ -68,8 +68,8 @@ router.get("/:userId/workouts/:workoutId", async (req, res) => {
         workouts: { $elemMatch: { _id: req.params.workoutId } }
       }
     );
-
-    res.json(user[0].workouts[0]);
+    const workout = user[0].workouts[0];
+    res.json(workout);
   } catch (error) {
     res.json({ message: error });
   }
@@ -91,8 +91,8 @@ router.post("/:userId/workouts", async (req, res) => {
 });
 
 // Delete a workout by ID
-router.delete("/:userId/workouts", async (req, res) => {
-  const workoutId = req.body.workoutId;
+router.delete("/:userId/workouts/:workoutId", async (req, res) => {
+  const workoutId = req.params.workoutId;
   try {
     await User.updateOne(
       { _id: req.params.userId },
@@ -107,15 +107,16 @@ router.delete("/:userId/workouts", async (req, res) => {
 });
 
 // Update a workout by ID -
-router.put("/:userId/workouts", async (req, res) => {
+router.put("/:userId/workouts/:workoutId", async (req, res) => {
   const updates = req.body;
-  const workoutId = updates.workoutId;
+  const workoutId = req.params.workoutId;
   try {
     const workout = await User.updateOne(
       { _id: req.params.userId, "workouts._id": workoutId },
       {
         "workouts.$.name": updates.name,
-        "workouts.$.duration": updates.duration
+        "workouts.$.duration": updates.duration,
+        "workouts.$.date": updates.date
       }
     );
     res.json(workout);
