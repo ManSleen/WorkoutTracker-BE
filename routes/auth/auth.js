@@ -14,7 +14,8 @@ router.post("/register", async (req, res) => {
   const userWithHashedPassword = new User(user);
   try {
     const newUser = await userWithHashedPassword.save();
-    res.json(newUser);
+    const token = generateToken(newUser);
+    res.json({ user: newUser, token: token });
   } catch (error) {
     res.json({ message: error });
   }
@@ -31,6 +32,8 @@ router.post("/login", async (req, res) => {
       res
         .status(200)
         .json({ message: `Welcome ${user.username}!`, token, user });
+    } else {
+      res.status(400).json({ message: "Couldnt find user" });
     }
   } catch (error) {
     res.json({ message: error });
